@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Memoria</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 10px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            cursor: pointer;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .card.matched {
+            background-color: #76c7c0;
+            cursor: default;
+        }
+        #reward-link {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Juego de Memoria</h1>
+    <div class="game-board" id="gameBoard"></div>
+    <div id="reward-link">
+        ¡Felicidades! Has completado el juego. Aquí está tu <a href="https://example.com">recompensa</a>.
+    </div>
+
+    <script>
+        const cards = [
+            'A', 'A', 'B', 'B', 
+            'C', 'C', 'D', 'D', 
+            'E', 'E', 'F', 'F', 
+            'G', 'G', 'H', 'H'
+        ];
+
+        // Mezclar las cartas
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        shuffle(cards);
+
+        const gameBoard = document.getElementById('gameBoard');
+        const rewardLink = document.getElementById('reward-link');
+        let flippedCards = [];
+        let matchedPairs = 0;
+
+        function createBoard() {
+            cards.forEach((cardValue, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.value = cardValue;
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (this.classList.contains('matched') || flippedCards.length === 2) return;
+
+            this.textContent = this.dataset.value;
+            flippedCards.push(this);
+
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+
+            if (card1.dataset.value === card2.dataset.value) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+
+                if (matchedPairs === cards.length / 2) {
+                    rewardLink.style.display = 'block'; // Mostrar recompensa al ganar
+                }
+            } else {
+                setTimeout(() => {
+                    card1.textContent = '';
+                    card2.textContent = '';
+                }, 1000);
+            }
+
+            flippedCards = [];
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
